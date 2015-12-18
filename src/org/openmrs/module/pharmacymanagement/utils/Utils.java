@@ -747,16 +747,13 @@ public class Utils {
 						.compareTo(((Drug) obj2).getName().toLowerCase());
 
 			else if (obj1 instanceof ConceptAnswer
-					&& obj2 instanceof ConceptAnswer)
-				compareInt = ((ConceptAnswer) obj1)
-						.getAnswerConcept()
-						.getName()
-						.getName()
-						.toLowerCase()
-						.compareTo(
-								((ConceptAnswer) obj2).getAnswerConcept()
-										.getName().getName().toLowerCase());
-			else if(obj1 instanceof DrugProduct && obj2 instanceof DrugProduct) {
+					&& obj2 instanceof ConceptAnswer) {
+				String name1 = ((ConceptAnswer) obj1).getAnswerConcept() != null && ((ConceptAnswer) obj1).getAnswerConcept().getName() != null ? ((ConceptAnswer) obj1).getAnswerConcept().getName().getName() : null;
+				String name2 = ((ConceptAnswer) obj2).getAnswerConcept() != null && ((ConceptAnswer) obj2).getAnswerConcept().getName() != null ? ((ConceptAnswer) obj2).getAnswerConcept().getName().getName() : null;
+				if(name1 != null && name2 != null) {
+					compareInt = name1.toLowerCase().compareTo(name2.toLowerCase());
+				}
+			} else if(obj1 instanceof DrugProduct && obj2 instanceof DrugProduct) {
 				String str1 = ((DrugProduct) obj1).getConceptId() != null ? ((DrugProduct) obj1).getConceptId().getName().getName().toLowerCase() : ((DrugProduct) obj1).getDrugId().getName().toLowerCase();
 				String str2 = ((DrugProduct) obj2).getConceptId() != null ? ((DrugProduct) obj2).getConceptId().getName().getName().toLowerCase() : ((DrugProduct) obj2).getDrugId().getName().toLowerCase();
 				
