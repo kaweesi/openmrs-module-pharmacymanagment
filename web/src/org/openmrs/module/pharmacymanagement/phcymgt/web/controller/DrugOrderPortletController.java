@@ -17,6 +17,7 @@ import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Location;
 import org.openmrs.Obs;
+import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.Person;
 import org.openmrs.api.ConceptService;
@@ -93,9 +94,9 @@ public class DrugOrderPortletController extends PortletController {
 		
 		List<DrugOrder> drugOrders = new ArrayList<DrugOrder>();
 //		Collection<DrugProduct> dpList = dos.getAllProducts();
-		if (patient != null) {
-			drugOrders = orderService.getDrugOrdersByPatient(patient);
-			model.put("patient", patient);
+		List<Order> orderList = Context.getOrderService().getOrders(patient, orderService.getCareSettingByUuid("6f0c9a92-6f24-11e3-af88-005056821db0"), orderService.getOrderTypeByName("Drug order"), false);//TODO, careseting should't be hard-coded to OUTPATIENT as here
+		for(Order order: orderList) {
+			drugOrders.add((DrugOrder) order);
 		}
 		for(Drug drg : drugs) {
 			drugMap.put(drg.getDrugId(), drg.getName().toString());
@@ -117,9 +118,9 @@ public class DrugOrderPortletController extends PortletController {
 		for(DrugOrder o : drugOrders) {
 			List<DrugOrder> ordList = new ArrayList<DrugOrder>();
 			for(DrugOrder o1 : drugOrders) {
-				if(o1.getStartDate().equals(o.getStartDate())) {
+				if(o1.getEffectiveStartDate().equals(o.getEffectiveStopDate())) {
 					ordList.add(o1);
-					dat1 = o1.getStartDate();
+					dat1 = o1.getEffectiveStartDate();
 				}
 			}
 			map.put(dat1, ordList);
@@ -127,8 +128,9 @@ public class DrugOrderPortletController extends PortletController {
 		
 		model.put("map", map);
 		model.put("drugOrders", drugOrders);
-		model.put("reasonStoppedOptions", Utils
-				.createCodedOptions(PharmacyConstants.REASON_ORDER_STOPPED));
+		HashMap<Integer, String> codedOptions = Utils
+				.createCodedOptions(PharmacyConstants.REASON_ORDER_STOPPED);
+		model.put("reasonStoppedOptions", codedOptions);
 		model.put("drugMap", drugMap);
 		model.put("medSet", concMedset);
 		model.put("drugs", drugs);

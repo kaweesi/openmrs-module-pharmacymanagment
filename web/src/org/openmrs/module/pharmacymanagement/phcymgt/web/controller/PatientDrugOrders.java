@@ -1,6 +1,7 @@
 package org.openmrs.module.pharmacymanagement.phcymgt.web.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,16 +17,16 @@ import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Location;
 import org.openmrs.Obs;
+import org.openmrs.Order;
+import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.Person;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.LocationService;
-import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.pharmacymanagement.DrugLotDate;
 import org.openmrs.module.pharmacymanagement.DrugProduct;
 import org.openmrs.module.pharmacymanagement.Pharmacy;
-import org.openmrs.module.pharmacymanagement.PharmacyConstants;
 import org.openmrs.module.pharmacymanagement.service.DrugOrderService;
 import org.openmrs.module.pharmacymanagement.utils.Utils;
 import org.openmrs.util.OpenmrsConstants;
@@ -81,14 +82,17 @@ public class PatientDrugOrders extends ParameterizableViewController {
 		if (patient != null && request.getParameter("pharmacyId") != null
 				&& !request.getParameter("pharmacyId").equals("")) {
 
-			drugOrders = Context.getOrderService().getDrugOrdersByPatient(
-					patient);		
+			List<Order> orderList = Context.getOrderService().getOrders(patient, Context.getOrderService().getCareSettingByUuid("6f0c9a92-6f24-11e3-af88-005056821db0"), Context.getOrderService().getOrderTypeByName("Drug order"), false);//TODO, careseting should't be hard-coded to OUTPATIENT as here
+			
+			for(Order order: orderList) {
+				drugOrders.add((DrugOrder) order);
+			}		
 
 			pharmacy = service.getPharmacyById(Integer.valueOf(request
 					.getParameter("pharmacyId")));
 			List<Integer> drugIdList = new ArrayList<Integer>();
 			for (DrugOrder dor : drugOrders) {
-				if (dor.getDiscontinued() == false) {
+				if (!dor.isDiscontinued(new Date())) {
 					drugOrderList.add(dor);
 				}
 			}
